@@ -106,7 +106,8 @@ response_task:
     Only generate responses for:
     - PERSONAL emails with HIGH or MEDIUM priority
     - DO NOT generate responses for ANY YouTube emails - the user will respond directly on YouTube instead
-
+    
+    
     For YouTube comments:
     - Thank them for their comment
     - Answer their question if possible
@@ -168,7 +169,6 @@ cleanup_task:
     - Confirmation emails for purchases
     - Travel-related emails with booking information
     - Anything that might be needed for reference later
-    - Anything categorized as NEWSLETTERS
     
     For these emails, use the 'GmailArchiveTool' instead of deleting them.
     
@@ -176,11 +176,12 @@ cleanup_task:
     - ANY email marked as HIGH or MEDIUM priority
     - ANY email from a personal contact
     - ANY email related to YouTube
+    - ANY email less than 5 days old
     
     ALWAYS delete:
     - ANY email with "Shutterfly" in the sender or subject, regardless of categorization
     - ANY email categorized as PROMOTIONS and older than 2 days
-    - ANY email categorized as OTHER and older than 2 days
+    - ANY email categorized as NEWSLETTERS and older than 7 days, unless HIGH priority
     
     The emails already have their age calculated in the "age_days" field.
     An email is less than 5 days old if age_days < 5.
@@ -214,3 +215,13 @@ cleanup_task:
   agent: cleaner
   context: [categorization_task]
   output_file: output/cleanup_report.json
+
+empty_trash_task:
+  description: >
+    1. IMPORTANT: Use the 'empty_gmail_trash' tool to permanently empty the trash folder
+       and free up storage space in the Gmail account.
+
+    WORKFLOW:
+    1. Use empty_gmail_trash tool
+  agent: trash_cleaner
+  context: [organization_task]

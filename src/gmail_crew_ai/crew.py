@@ -7,10 +7,25 @@ from typing import List, Dict, Any, Callable
 from pydantic import SkipValidation
 from datetime import date, datetime
 
-from gmail_crew_ai.tools.gmail_tools import GetUnreadEmailsTool, SaveDraftTool, GmailOrganizeTool, GmailDeleteTool, EmptyTrashTool
+from gmail_crew_ai.tools.gmail_tools import (
+	GetUnreadEmailsTool,
+	SaveDraftTool,
+	GmailOrganizeTool,
+	GmailDeleteTool,
+	EmptyTrashTool
+)
 from gmail_crew_ai.tools.slack_tool import SlackNotificationTool
 from gmail_crew_ai.tools.date_tools import DateCalculationTool
-from gmail_crew_ai.models import CategorizedEmail, OrganizedEmail, EmailResponse, SlackNotification, EmailCleanupInfo, SimpleCategorizedEmail, EmailDetails
+from gmail_crew_ai.models import (
+	CategorizedEmail,
+	OrganizedEmail,
+	EmailResponse,
+	SlackNotification,
+	EmailCleanupInfo,
+	SimpleCategorizedEmail,
+	EmailDetails
+)
+
 
 @CrewBase
 class GmailCrewAi():
@@ -61,8 +76,8 @@ class GmailCrewAi():
 		return inputs
 	
 	llm = LLM(
-		model="openai/gpt-4o-mini",
-		api_key=os.getenv("OPENAI_API_KEY"),
+		model=os.getenv("MODEL"),
+		# api_key=os.getenv("OPENAI_API_KEY"),
 	)
 
 	@agent
@@ -101,14 +116,31 @@ class GmailCrewAi():
 			llm=self.llm,
 		)
 
+	# @agent
+	# def empty_trash(self) -> Agent:
+	# 	"""The email cleanup agent."""
+	# 	return Agent(
+	# 		config=self.agents_config['trash_cleaner'],
+	# 	tools=[EmptyTrashTool()],
+	# 	llm=self.llm,
+	# )
+
 	@agent
 	def cleaner(self) -> Agent:
 		"""The email cleanup agent."""
 		return Agent(
 			config=self.agents_config['cleaner'],
-			tools=[GmailDeleteTool(), EmptyTrashTool()],
+			tools=[GmailDeleteTool()],  # , EmptyTrashTool()],
 			llm=self.llm,
 		)
+
+	# @task
+	# def empty_trash_task(self) -> Task:
+	# 	"""The email cleanup task."""
+	# 	return Task(
+	# 		config=self.tasks_config['empty_trash_task'],
+	# 		output_pydantic=EmailCleanupInfo,
+	# 	)
 
 	@task
 	def categorization_task(self) -> Task:

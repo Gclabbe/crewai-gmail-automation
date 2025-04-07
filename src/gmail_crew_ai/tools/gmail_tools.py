@@ -13,6 +13,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import base64
 
+
 def decode_header_safe(header):
     """
     Safely decode email headers that might contain encoded words or non-ASCII characters.
@@ -49,6 +50,7 @@ def clean_email_body(email_body: str) -> str:
     # Remove excessive whitespace and newlines
     text = re.sub(r'\s+', ' ', text).strip()
     return text
+
 
 class GmailToolBase(BaseTool):
     """Base class for Gmail tools, handling connection and credentials."""
@@ -138,6 +140,7 @@ class GmailToolBase(BaseTool):
                 body = f"Error decoding body: {e}"
         return body
 
+
 class GetUnreadEmailsSchema(BaseModel):
     """Schema for GetUnreadEmailsTool input."""
     limit: Optional[int] = Field(
@@ -145,6 +148,7 @@ class GetUnreadEmailsSchema(BaseModel):
         description="Maximum number of unread emails to retrieve. Defaults to 5.",
         ge=1  # Ensures the limit is greater than or equal to 1
     )
+
 
 class GetUnreadEmailsTool(GmailToolBase):
     """Tool to get unread emails from Gmail."""
@@ -254,6 +258,7 @@ class GetUnreadEmailsTool(GmailToolBase):
         
         return ""
 
+
 class SaveDraftSchema(BaseModel):
     """Schema for SaveDraftTool input."""
     subject: str = Field(..., description="Email subject")
@@ -261,20 +266,22 @@ class SaveDraftSchema(BaseModel):
     recipient: str = Field(..., description="Recipient email address")
     thread_info: Optional[Dict[str, Any]] = Field(None, description="Thread information for replies")
 
+
 class SaveDraftTool(BaseTool):
     """Tool to save an email as a draft using IMAP."""
     name: str = "save_email_draft"
     description: str = "Saves an email as a draft in Gmail"
     args_schema: Type[BaseModel] = SaveDraftSchema
+    sig_name: str = f"{os.environ["NAME_FIRST"]} {os.environ["NAME_LAST"]}"
 
     def _format_body(self, body: str) -> str:
         """Format the email body with signature."""
-        # Replace [Your name] or [Your Name] with Tony Kipkemboi
-        body = re.sub(r'\[Your [Nn]ame\]', 'Tony Kipkemboi', body)
+        # Replace [Your name] or [Your Name] with name from .env
+        body = re.sub(r'\[Your [Nn]ame\]', self.sig_name, body)
         
         # If no placeholder was found, append the signature
         if '[Your' not in body and '[your' not in body:
-            body = f"{body}\n\nBest regards,\nTony Kipkemboi"
+            body = f"{body}\n\nBest regards,\n{self.sig_name}"
         
         return body
 
@@ -446,6 +453,7 @@ class SaveDraftTool(BaseTool):
         finally:
             self._disconnect(mail)
 
+
 class GmailOrganizeSchema(BaseModel):
     """Schema for GmailOrganizeTool input."""
     email_id: str = Field(..., description="Email ID to organize")
@@ -453,6 +461,7 @@ class GmailOrganizeSchema(BaseModel):
     priority: str = Field(..., description="Priority level (High/Medium/Low)")
     should_star: bool = Field(default=False, description="Whether to star the email")
     labels: List[str] = Field(default_list=[], description="Labels to apply")
+
 
 class GmailOrganizeTool(GmailToolBase):
     """Tool to organize emails based on agent categorization."""
@@ -504,12 +513,14 @@ class GmailOrganizeTool(GmailToolBase):
         finally:
             self._disconnect(mail)
 
+
 class GmailDeleteSchema(BaseModel):
     """Schema for GmailDeleteTool input."""
     email_id: str = Field(..., description="Email ID to delete")
     reason: str = Field(..., description="Reason for deletion")
 
-class GmailDeleteTool(BaseTool):
+
+class GmailDeleteTool(GmailToolBase):
     """Tool to delete an email using IMAP."""
     name: str = "delete_email"
     description: str = "Deletes an email from Gmail"
@@ -555,7 +566,8 @@ class GmailDeleteTool(BaseTool):
         except Exception as e:
             return f"Error deleting email: {str(e)}"
 
-class EmptyTrashTool(BaseTool):
+
+class EmptyTrashTool(GmailToolBase):
     """Tool to empty Gmail trash."""
     name: str = "empty_gmail_trash"
     description: str = "Empties the Gmail trash folder to free up space"

@@ -5,6 +5,7 @@ from typing import List, Dict, Optional, Type
 from pydantic import BaseModel, Field
 from crewai.tools import BaseTool
 
+
 class SlackNotificationSchema(BaseModel):
     """Schema for SlackNotificationTool input."""
     subject: str = Field(..., description="Email subject")
@@ -16,6 +17,7 @@ class SlackNotificationSchema(BaseModel):
     headline: Optional[str] = Field(None, description="Custom headline for the notification")
     intro: Optional[str] = Field(None, description="Custom intro phrase for the notification")
     action_header: Optional[str] = Field(None, description="Custom header for the action section")
+
 
 class SlackNotificationTool(BaseTool):
     """Tool to send notifications to Slack."""

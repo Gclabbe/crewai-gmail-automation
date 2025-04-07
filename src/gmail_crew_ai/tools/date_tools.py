@@ -4,11 +4,13 @@ from pydantic import BaseModel, Field
 from crewai.tools import BaseTool
 import time
 
+
 class DateCalculationSchema(BaseModel):
     """Schema for DateCalculationTool input."""
     email_date: str = Field(..., description="Email date in ISO format (YYYY-MM-DD)")
     # Remove reference_date from schema to prevent agent from using it
     # reference_date: Optional[str] = Field(None, description="Reference date in ISO format (YYYY-MM-DD). Defaults to today.")
+
 
 class DateCalculationTool(BaseTool):
     """Tool to calculate the age of an email in days."""

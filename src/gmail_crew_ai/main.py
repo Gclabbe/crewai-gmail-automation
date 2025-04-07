@@ -14,31 +14,43 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
 from gmail_crew_ai.crew import GmailCrewAi
 
-def run():
+
+def run(count: int = 10):
     """Run the Gmail Crew AI."""
+    # import argparse
+    #
+    # parser = argparse.ArgumentParser(description="Gmail Crew AI")
+    # parser.add_argument("--number", type=int, help="Number of emails to process")
+    #
+    # args = parser.parse_args()
+    # email_limit = args.number
+    email_limit = count
+
     try:
         # Load environment variables
         load_dotenv()
         
         # Get user input for number of emails to process
-        try:
-            email_limit = input("How many emails would you like to process? (default: 5): ")
-            if email_limit.strip() == "":
-                email_limit = 5
-            else:
-                email_limit = int(email_limit)
-                if email_limit <= 0:
-                    print("Number must be positive. Using default of 5.")
-                    email_limit = 5
-        except ValueError:
-            print("Invalid input. Using default of 5 emails.")
-            email_limit = 5
+        # try:
+        #     email_limit = input("How many emails would you like to process? (default: 5): ")
+        #     if email_limit.strip() == "":
+        #         email_limit = 5
+        #     else:
+        #         email_limit = int(email_limit)
+        #         if email_limit <= 0:
+        #             print("Number must be positive. Using default of 5.")
+        #             email_limit = 5
+        # except ValueError:
+        #     print("Invalid input. Using default of 5 emails.")
+        #     email_limit = 5
         
         print(f"Processing {email_limit} emails...")
         
         # Create and run the crew with the specified email limit
-        result = GmailCrewAi().crew().kickoff(inputs={'email_limit': email_limit})
-        
+        result = GmailCrewAi().crew().kickoff(
+            inputs={'email_limit': email_limit},
+        )
+
         # Check if result is empty or None
         if not result:
             print("\nNo emails were processed. Inbox might be empty.")
